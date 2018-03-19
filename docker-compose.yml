@@ -9,7 +9,7 @@ services:
       - "3030:3000"
     depends_on:
       - mongo
-    command: sh -c "cd /app && pwd && npm start"
+    command: sh -c "cd /app && yarn install && yarn start"
   mongo:
     image: mongo:3.5
     volumes:
