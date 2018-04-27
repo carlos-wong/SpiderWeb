@@ -14,3 +14,12 @@ services:
     image: mongo:3.5
     volumes:
       - ./mongodb_data:/data/db
+  server:
+    image: mhart/alpine-node:8
+    volumes:
+      - ./server:/app
+    ports:
+        - "3038:3000"
+    depends_on:
+      - mongo
+    command: sh -c "cd /app && yarn install && yarn start "
