@@ -35,6 +35,13 @@ var UserInfo = mongoose.model('UserInfo', {
     tokenValidDate:{type:Date}
 });
 
+var TestCase = mongoose.model('TestCase',{
+    title:{type:String,request: true,index:true,unique:true,dropDups:true,sparse:true},
+    correct:{ type: String,required: true},
+    createdDate:{type:Date},
+    tags:{type:Array}
+});
+
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
     console.log('opended mongodb');
@@ -86,6 +93,30 @@ router.get('/userinfo',async (ctx,next)=>{
         // log.debug(e);
     }
     // ctx.status = 200;
+});
+
+router.get('/debug_inser_test_case', async(ctx,next)=>{
+    try{
+        let newTestCase = new TestCase({
+            title:'hi',
+            correct:'hello',
+            createdDate: new Date(),
+            tags:["carlos",'hi']
+        });
+        let saveRet = await newTestCase.save();
+        log.debug('debug save ret is:',saveRet);
+        await next();
+        ctx.status = 200;
+    }
+    catch(e){
+        // log.debug('debug insert test case catch e:',e);
+        try{
+            ctx.throw(e);
+        }
+        catch(e){
+            ctx.throw(400, 'debug insert data error');
+        }
+    }
 });
 
 router.get('/login', async (ctx,next)=>{
