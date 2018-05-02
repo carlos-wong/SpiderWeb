@@ -5,8 +5,11 @@
   "license": "MIT",
   "dependencies": {
     "koa": "^2.5.1",
+    "koa-body": "^2.5.0",
     "koa-router": "^7.4.0",
+    "koa-validate": "^1.0.7",
     "lodash": "^4.17.10",
+    "loglevel": "^1.6.1",
     "mongoose": "^5.0.17",
     "nodemon": "^1.17.3"
   },

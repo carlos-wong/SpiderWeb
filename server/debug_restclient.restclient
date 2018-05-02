@@ -2,4 +2,8 @@
 GET http://localhost:3038
 
 #
+GET http://localhost:3038/register?username=123
+
+
+#
 GET http://localhost:3038/register?name=123
