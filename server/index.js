@@ -17,6 +17,11 @@ var db = mongoose.connection;
 const app = new Koa();
 var router = new Router();
 
+app.use(async (ctx, next) => {
+    ctx.request.body = ctx.request.query;
+    await next();
+});
+
 app.use(bouncer.middleware());
 app.use(router.routes())
     .use(router.allowedMethods());
@@ -45,7 +50,6 @@ async function  userinfo_check_userexist(username){
 
 router.get('/userinfo',async (ctx,next)=>{
     try{
-        ctx.request.body = ctx.request.query;
         ctx.validateBody('token')
             .isString()
             .trim();
@@ -64,7 +68,6 @@ router.get('/userinfo',async (ctx,next)=>{
 
 router.get('/login', async (ctx,next)=>{
     let query = ctx.request.query;
-    ctx.request.body = ctx.request.query;
     try{
         ctx.validateBody('username')
             .isString()
@@ -100,7 +103,6 @@ router.get('/login', async (ctx,next)=>{
 
 router.get('/register', async (ctx, next) => {
     let query = ctx.request.query;
-    ctx.request.body = ctx.request.query;
     try{
         ctx.validateBody('username')
             .isString()
