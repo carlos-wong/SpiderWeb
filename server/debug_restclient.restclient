@@ -15,6 +15,12 @@ GET http://localhost:3038/userinfo?token=c3384e53ef6f9ca7606a353c8ad46941&userna
 GET http://localhost:3038/debug_inser_test_case
 
 #
+GET http://localhost:3038/debug_query_test_case?tags=123,234
+
+#
+GET http://localhost:3038/addTestCase?token=c3384e53ef6f9ca7606a353c8ad46941&username=12345123&title=123&correct=correct123
+
+#
 GET http://localhost:3038/register?name=123
 
 

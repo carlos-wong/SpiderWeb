@@ -39,7 +39,7 @@ var TestCase = mongoose.model('TestCase',{
     title:{type:String,request: true,index:true,unique:true,dropDups:true,sparse:true},
     correct:{ type: String,required: true},
     createdDate:{type:Date},
-    tags:{type:Array}
+    tags:[]
 });
 
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -52,10 +52,8 @@ async function check_token(ctx,token,username,tokenDate){
     let tokenAuthed = await UserInfo.findOne({token:ctx.vals.token,username:ctx.vals.username});
     if (tokenAuthed) {
         let tokenDate = tokenAuthed.tokenValidDate;
-        log.debug('tokenDate offset is:',now - tokenDate);
         let offset = _.subtract(now - tokenDate);
-        // if(offset > _.multiply(7,_.multiply(_.multiply(_.multiply(1000,60),60),24))){
-        if(offset > 100){
+        if(offset > _.multiply(7,_.multiply(_.multiply(_.multiply(1000,60),60),24))){
             ctx.throw(400, 'it\'s too long after last login' );
         }
         return tokenAuthed;
@@ -95,13 +93,61 @@ router.get('/userinfo',async (ctx,next)=>{
     // ctx.status = 200;
 });
 
+router.get('/debug_query_test_case', async(ctx,next)=>{
+    try{
+        ctx.validateBody('tags')
+            .isString()
+            .trim();
+        let tags = ctx.vals.tags.split(',');
+        log.debug('tags is:',tags);
+        let debugTestCasesAll = await TestCase.find();
+        log.debug('all test case is:',debugTestCasesAll);
+        let findTestCases = await TestCase.find({tags:{"$all" :['carlos','hi'] }});
+        log.debug('find test cases is:',findTestCases);
+        ctx.status = 200;
+    }
+    catch(e){
+        ctx.throw(e);
+    }
+});
+
+router.get('/addTestCase',async(ctx,next)=>{
+    try {
+        ctx.validateBody('token')
+            .isString()
+            .trim();
+        ctx.validateBody('username')
+            .isString()
+            .trim();
+        ctx.validateBody('title')
+            .isString()
+            .trim();
+        ctx.validateBody('correct')
+            .isString()
+            .trim();
+        let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
+        await next();
+        let newTestCase = new TestCase({
+            title:ctx.vals.title,
+            correct:ctx.vals.correct,
+            createdDate: new Date(),
+        });
+        let saveRet = await newTestCase.save();
+        log.debug('debug save ret is:',saveRet);
+        ctx.status = 200;
+    } catch (err) {
+        ctx.throw(err);
+    } finally {
+    }
+});
+
 router.get('/debug_inser_test_case', async(ctx,next)=>{
     try{
         let newTestCase = new TestCase({
-            title:'hi',
+            title:'hi123',
             correct:'hello',
             createdDate: new Date(),
-            tags:["carlos",'hi']
+            tags:["carlos",'hisadfasf']
         });
         let saveRet = await newTestCase.save();
         log.debug('debug save ret is:',saveRet);
@@ -120,7 +166,6 @@ router.get('/debug_inser_test_case', async(ctx,next)=>{
 });
 
 router.get('/login', async (ctx,next)=>{
-    let query = ctx.request.query;
     try{
         ctx.validateBody('username')
             .isString()
