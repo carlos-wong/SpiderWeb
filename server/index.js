@@ -6,6 +6,8 @@ mongoose.connect('mongodb://mongo:27017/myproject');
 var log = require('loglevel');
 log.setLevel('debug');
 
+let _ = require('lodash');
+
 const bouncer = require('koa-bouncer');
 
 var passwordSalt  = require('./salt.js');
@@ -38,6 +40,24 @@ db.once('open', function() {
     console.log('opended mongodb');
 });
 
+async function check_token(ctx,token,username,tokenDate){
+    let now = new Date();
+    let tokenAuthed = await UserInfo.findOne({token:ctx.vals.token,username:ctx.vals.username});
+    if (tokenAuthed) {
+        let tokenDate = tokenAuthed.tokenValidDate;
+        log.debug('tokenDate offset is:',now - tokenDate);
+        let offset = _.subtract(now - tokenDate);
+        // if(offset > _.multiply(7,_.multiply(_.multiply(_.multiply(1000,60),60),24))){
+        if(offset > 100){
+            ctx.throw(400, 'it\'s too long after last login' );
+        }
+        return tokenAuthed;
+    }
+    else{
+        ctx.throw(400, 'token invalid');
+    }
+};
+
 async function  userinfo_check_userexist(username){
     let ret = await UserInfo.findOne({username:username});
     if(ret){
@@ -56,14 +76,16 @@ router.get('/userinfo',async (ctx,next)=>{
         ctx.validateBody('username')
             .isString()
             .trim();
-        let tokenAuthed = await UserInfo.findOne({token:ctx.vals.token,username:ctx.vals.username});
+        let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
         log.debug('debug token authed is:',tokenAuthed);
+        await next();
+        ctx.status = 200;
     }
     catch(e){
-        log.debug(e);
+        ctx.throw(e);
+        // log.debug(e);
     }
-    
-    ctx.status = 200;
+    // ctx.status = 200;
 });
 
 router.get('/login', async (ctx,next)=>{
