@@ -125,12 +125,22 @@ router.get('/addTestCase',async(ctx,next)=>{
         ctx.validateBody('correct')
             .isString()
             .trim();
+        ctx.validateBody('tags')
+            .optional()
+            .isString()
+            .trim();
+        let tags = [];
+        if(ctx.vals.tags){
+            tags = ctx.vals.tags.split(',');
+        }
+
         let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
         await next();
         let newTestCase = new TestCase({
             title:ctx.vals.title,
             correct:ctx.vals.correct,
             createdDate: new Date(),
+            tags:tags
         });
         let saveRet = await newTestCase.save();
         log.debug('debug save ret is:',saveRet);
