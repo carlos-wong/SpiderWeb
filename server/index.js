@@ -23,7 +23,9 @@ app.use(router.routes())
 
 var UserInfo = mongoose.model('UserInfo', {
     username:{ type: String,required: true, index: true,unique: true, dropDups: true, sparse: true },
-    password:{ type: String,required: true}
+    password:{ type: String,required: true},
+    token:{ type: String,},
+    tokenValidDate:{type:Date}
 });
 
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -41,11 +43,64 @@ async function  userinfo_check_userexist(username){
     }
 }
 
+router.get('/userinfo',async (ctx,next)=>{
+    try{
+        ctx.request.body = ctx.request.query;
+        ctx.validateBody('token')
+            .isString()
+            .trim();
+        ctx.validateBody('username')
+            .isString()
+            .trim();
+        let tokenAuthed = await UserInfo.findOne({token:ctx.vals.token,username:ctx.vals.username});
+        log.debug('debug token authed is:',tokenAuthed);
+    }
+    catch(e){
+        log.debug(e);
+    }
+    
+    ctx.status = 200;
+});
+
+router.get('/login', async (ctx,next)=>{
+    let query = ctx.request.query;
+    ctx.request.body = ctx.request.query;
+    try{
+        ctx.validateBody('username')
+            .isString()
+            .trim();
+        ctx.validateBody('password')
+            .isString()
+            .trim();
+        let password = md5(ctx.vals.password+passwordSalt);
+
+        let loginRet = await UserInfo.findOne({username:ctx.vals.username,password:password});
+        log.debug('login ret is:',loginRet);
+        if (loginRet) {
+            ctx.status = 200;
+            let time = new Date();
+            let token = md5(ctx.vals.username+ctx.vals+password+time);
+            loginRet.token = token;
+            loginRet.tokenValidDate = time;
+            let saveRet = await loginRet.save();
+            log.debug('save Ret is:',saveRet);
+            ctx.body = {token:token};
+            return;
+        }
+        else{
+            ctx.status = 401;
+            return;
+        }
+    }
+    catch(e){
+        ctx.body = e;
+        ctx.status = 400;
+    }
+});
+
 router.get('/register', async (ctx, next) => {
     let query = ctx.request.query;
     ctx.request.body = ctx.request.query;
-    log.debug('debug register ctx:',query);
-    log.debug('debug request body is:',ctx.request.body);
     try{
         ctx.validateBody('username')
             .isString()
@@ -68,7 +123,6 @@ router.get('/register', async (ctx, next) => {
         ctx.status = 200;
     }
     catch(e){
-        log.error(e);
         ctx.body = e;
         ctx.status = 400;
     }
