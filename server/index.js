@@ -3,14 +3,13 @@ const Koa = require('koa');
 var Router = require('koa-router');
 var mongoose = require('mongoose');
 var log = require('loglevel');
+var cors = require('koa-cors');
 
 log.setLevel('debug');
 mongoose.connect('mongodb://mongo:27017/myproject');
 
 let _ = require('lodash');
-
 const bouncer = require('koa-bouncer');
-
 var passwordSalt  = require('./salt.js');
 
 var md5 = require('md5');
@@ -20,8 +19,23 @@ var db = mongoose.connection;
 const app = new Koa();
 var router = new Router();
 
+app.use(cors({
+    origin: 'http://localhost:3030',
+    credentials:true
+}));
+
 app.use(async (ctx, next) => {
     ctx.request.body = ctx.request.query;
+    let context = ctx;
+    const cookieHeader = context.headers.cookie;
+    if (cookieHeader) {
+        const cookies = cookieHeader.split(';');
+        context.cookie = {};
+        cookies.forEach(function (item) {
+            const crumbs = item.split('=');
+            if (crumbs.length > 1) context.cookie[crumbs[0].trim()] = crumbs[1].trim();
+        });
+    }
     await next();
 });
 
@@ -76,6 +90,7 @@ async function  userinfo_check_userexist(username){
 
 router.get('/userinfo',async (ctx,next)=>{
     try{
+        log.debug('cookie is:',ctx.cookie);
         ctx.validateBody('token')
             .isString()
             .trim();
@@ -178,6 +193,7 @@ router.get('/debug_inser_test_case', async(ctx,next)=>{
 
 router.get('/login', async (ctx,next)=>{
     try{
+        log.debug('login cookie is:',ctx.cookie);
         ctx.validateBody('username')
             .isString()
             .trim();
@@ -187,7 +203,6 @@ router.get('/login', async (ctx,next)=>{
         let password = md5(ctx.vals.password+passwordSalt);
 
         let loginRet = await UserInfo.findOne({username:ctx.vals.username,password:password});
-        log.debug('login ret is:',loginRet);
         if (loginRet) {
             ctx.status = 200;
             let time = new Date();
@@ -195,8 +210,10 @@ router.get('/login', async (ctx,next)=>{
             loginRet.token = token;
             loginRet.tokenValidDate = time;
             let saveRet = await loginRet.save();
-            log.debug('save Ret is:',saveRet);
             ctx.body = {token:token};
+            ctx.cookies.set('token', token);
+            ctx.cookies.set('username',ctx.vals.username);
+
             return;
         }
         else{

@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "antd": "^3.4.4",
+    "axios": "^0.18.0",
+    "loglevel": "^1.6.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-list-view": "^1.0.0",

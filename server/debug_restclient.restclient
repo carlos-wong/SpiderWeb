@@ -5,11 +5,15 @@ GET http://localhost:3038
 #
 GET http://localhost:3038/register?username=12345123&password=123123
 
+
+#
+GET http://localhost:3038/register?username=12&password=12
+
 #
 GET http://localhost:3038/login?username=12345123&password=123123
 
 #
-GET http://localhost:3038/userinfo?token=c3384e53ef6f9ca7606a353c8ad46941&username=12345123
+GET http://localhost:3038/userinfo?token=5511fd96a795f79a4c66fa54d1fbb436&username=12345123
 
 #
 GET http://localhost:3038/debug_inser_test_case
