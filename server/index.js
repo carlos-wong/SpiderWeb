@@ -172,7 +172,8 @@ router.get('/addTestCase',async(ctx,next)=>{
         ctx.status = 200;
     } catch (err) {
         log.debug('err is:',err);
-        ctx.throw(err);
+        // ctx.throw(err);
+        ctx.status = 500;
     } finally {
     }
 });
