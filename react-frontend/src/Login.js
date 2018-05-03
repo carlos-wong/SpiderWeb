@@ -56,8 +56,8 @@ class Login extends Component {
                     this.setState({loading:true});
                     try {
                         let loginret = await backend_axios_instance.get('/login?username='+this.state.username+'&password='+this.state.password);
-                        log.debug(loginret);
-                        this.props.route.history.push('/userinfo');
+                        log.debug("login ret",loginret.data);
+                        this.props.route.history.push('/testaddcase');
                     } catch (err) {
                         log.debug(err);
                         this.setState({

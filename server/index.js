@@ -64,7 +64,11 @@ db.once('open', function() {
 
 async function check_token(ctx,token,username,tokenDate){
     let now = new Date();
+    let allUserInfo = await UserInfo.find();
+    log.debug('all user info is:',allUserInfo,' vals is:',ctx.vals);
+    log.debug('find param is:',{token:ctx.vals.token,username:ctx.vals.username});
     let tokenAuthed = await UserInfo.findOne({token:ctx.vals.token,username:ctx.vals.username});
+    log.debug('token authed is:',tokenAuthed);
     if (tokenAuthed) {
         let tokenDate = tokenAuthed.tokenValidDate;
         let offset = _.subtract(now - tokenDate);
@@ -129,12 +133,12 @@ router.get('/debug_query_test_case', async(ctx,next)=>{
 
 router.get('/addTestCase',async(ctx,next)=>{
     try {
-        ctx.validateBody('token')
-            .isString()
-            .trim();
-        ctx.validateBody('username')
-            .isString()
-            .trim();
+        log.debug('add test case cookie is:',ctx.cookie);
+        //     .isString()
+        //     .trim();
+        // ctx.validateBody('username')
+        //     .isString()
+        //     .trim();
         ctx.validateBody('title')
             .isString()
             .trim();
@@ -145,12 +149,17 @@ router.get('/addTestCase',async(ctx,next)=>{
             .optional()
             .isString()
             .trim();
+        ctx.vals.token = ctx.cookie.token;
+        ctx.vals.username = ctx.cookie.username;
+        // ctx.validateBody('token')
         let tags = [];
         if(ctx.vals.tags){
             tags = ctx.vals.tags.split(',');
         }
+        log.debug('debug ctx before token authed vals:',ctx.vals);
 
         let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
+        log.debug('token authed is:',tokenAuthed);
         await next();
         let newTestCase = new TestCase({
             title:ctx.vals.title,
@@ -162,6 +171,7 @@ router.get('/addTestCase',async(ctx,next)=>{
         log.debug('debug save ret is:',saveRet);
         ctx.status = 200;
     } catch (err) {
+        log.debug('err is:',err);
         ctx.throw(err);
     } finally {
     }
@@ -210,6 +220,7 @@ router.get('/login', async (ctx,next)=>{
             loginRet.token = token;
             loginRet.tokenValidDate = time;
             let saveRet = await loginRet.save();
+            log.debug('save login Ret is:',saveRet);
             ctx.body = {token:token};
             ctx.cookies.set('token', token);
             ctx.cookies.set('username',ctx.vals.username);

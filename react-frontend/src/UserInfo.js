@@ -32,7 +32,7 @@ class Login extends Component {
                     this.setState({loading:true});
                     try {
                         let userinfoet = await backend_axios_instance.get(
-                            '/userinfo?token=b036f51ef23c0dc8fd579e78cde74963&username=12345123'
+                            '/userinfo?token=a4429cf641996f6728bcb0a90609e42a&username=12345123'
                             );
                         log.debug(userinfoet);
                     } catch (err) {

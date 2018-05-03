@@ -8,10 +8,11 @@ import './App.css';
 
 import Login from './Login';
 import UserInfo from './UserInfo';
-import search from './search'
+import search from './search';
 import AddTestCase from './AddTestCase';
 import axios from 'axios';
 import config from './config';
+import Testaddcase from './testaddcase';
 
 var backend_axios_instance = axios.create({
     baseURL: config.serverurl,
@@ -27,7 +28,8 @@ class App extends Component {
           <Switch>
             <Route path="/login" axios="bar" component={(route) => (<Login route={route} axios={backend_axios_instance} />)} />
             <Route path="/search" component={search} />
-            <Route path="/login/:id" axios="bar" component={(route) => (<Login route={route} axios={backend_axios_instance} />)} />
+            <Route path="/login" component={(route) => (<Login route={route} axios={backend_axios_instance} />)} />
+            <Route path="/testaddcase" component={(route) => (<Testaddcase route={route} axios={backend_axios_instance} />)} />
             <Route path="/params/:id/hello/:newid" component={Params} />
             <Route path="/userinfo" component={(route) => (<UserInfo route={route} axios={backend_axios_instance} />)} />
             <Route path="/addtestcase/:id/:name/:code"  component={AddTestCase} />
