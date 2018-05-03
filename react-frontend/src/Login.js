@@ -4,6 +4,15 @@ import {Row, Col,Layout,Modal,Button,Divider, List, Avatar,Input } from 'antd';
 import logo from './logo.svg';
 import './App.css';
 import axios from 'axios';
+import log from 'loglevel';
+import config from './config';
+
+log.setLevel('debug');
+
+var backend_axios_instance = axios.create({
+    baseURL: config.serverurl,
+    timeout: 10000,
+});
 
 class Login extends Component {
     constructor(props) {
@@ -47,7 +56,7 @@ class Login extends Component {
               </div>
               <Button type="primary" loading={this.state.loading} onClick={()=>{
                     this.setState({loading:true});
-                    console.log('debug state:',this.state);
+                    log.debug('debug state:',this.state);
                 }}>
                 Click me!
               </Button>
