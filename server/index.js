@@ -168,7 +168,7 @@ router.post('/addTestCase',async(ctx,next)=>{
             tags = ctx.vals.tags.split(',');
         }
         
-
+        log.debug('dump try to save testcaes is:',ctx.vals);
         let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
         
         await next();

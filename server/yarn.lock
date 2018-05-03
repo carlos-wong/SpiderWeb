@@ -238,15 +238,6 @@ cli-boxes@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/cli-boxes/-/cli-boxes-1.0.0.tgz#4fa917c3e59c94a004cd61f8ee509da651687143"
 
-co-body@^5.1.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/co-body/-/co-body-5.2.0.tgz#5a0a658c46029131e0e3a306f67647302f71c124"
-  dependencies:
-    inflation "^2.0.0"
-    qs "^6.4.0"
-    raw-body "^2.2.0"
-    type-is "^1.6.14"
-
 co-body@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/co-body/-/co-body-5.1.1.tgz#d97781d1e3344ba4a820fd1806bddf8341505236"
@@ -322,10 +313,6 @@ cookies@~0.7.0:
 copy-descriptor@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
-
-copy-to@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/copy-to/-/copy-to-2.0.1.tgz#2680fbb8068a48d08656b6098092bdafc906f4a5"
 
 core-util-is@~1.0.0:
   version "1.0.2"
@@ -939,13 +926,6 @@ koa-body@^2.5.0:
   dependencies:
     co-body "^5.1.1"
     formidable "^1.1.1"
-
-koa-bodyparser@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/koa-bodyparser/-/koa-bodyparser-4.2.0.tgz#bce6e08bc65f8709b6d1faa9411c7f0d8938aa54"
-  dependencies:
-    co-body "^5.1.0"
-    copy-to "^2.0.1"
 
 koa-bouncer@^6.0.4:
   version "6.0.4"

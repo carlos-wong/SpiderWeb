@@ -22,9 +22,12 @@ class Testaddcase extends Component {
               <a>Building</a>
               <Button type="primary" onClick={ async ()=>{
                     try {
-                        let loginret = await backend_axios_instance.get(
-                            '/addTestCase?title=112sdf3a&correct=correct123'
-                            );
+                        let loginret = await backend_axios_instance.post('/addTestCase',
+                                                                         {
+                                                                             title: 'Fred123',
+                                                                             correct: 'sfadsf'
+                                                                         }
+                                                                        );
                         log.debug(loginret);
                         this.props.route.history.push('/testaddcase');
                     } catch (err) {
