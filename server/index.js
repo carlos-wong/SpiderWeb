@@ -11,6 +11,7 @@ mongoose.connect('mongodb://mongo:27017/myproject');
 let _ = require('lodash');
 const bouncer = require('koa-bouncer');
 var passwordSalt  = require('./salt.js');
+const koaBody = require('koa-body');
 
 var md5 = require('md5');
 
@@ -18,14 +19,18 @@ var db = mongoose.connection;
 
 const app = new Koa();
 var router = new Router();
-
+app.use(koaBody());
 app.use(cors({
     origin: 'http://localhost:3030',
     credentials:true
 }));
 
 app.use(async (ctx, next) => {
-    ctx.request.body = ctx.request.query;
+    log.debug('method is:',ctx.method,' index:',["GET", "HEAD", "DELETE"].indexOf(ctx.method.toUpperCase()));
+    if (["GET", "HEAD", "DELETE"].indexOf(ctx.method.toUpperCase()) >= 0) {
+        ctx.request.body = ctx.request.query;
+    }
+    log.debug('post body is:',ctx.request.body);
     let context = ctx;
     const cookieHeader = context.headers.cookie;
     if (cookieHeader) {
@@ -131,7 +136,13 @@ router.get('/debug_query_test_case', async(ctx,next)=>{
     }
 });
 
-router.get('/addTestCase',async(ctx,next)=>{
+router.post('/debugpost',async(ctx,next)=>{
+    log.debug('post body is:',ctx.request.body);
+    await next();
+    ctx.status = 200;
+});
+
+router.post('/addTestCase',async(ctx,next)=>{
     try {
         log.debug('add test case cookie is:',ctx.cookie);
         //     .isString()
