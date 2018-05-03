@@ -6,6 +6,7 @@ import logo from './logo.svg';
 import './App.css';
 
 import Login from './Login';
+import search from './search'
 
 class App extends Component {
   render() {
@@ -13,6 +14,7 @@ class App extends Component {
         <BrowserRouter>
           <Switch>
           <Route path="/Login" component={Login} />
+          <Route path="/search" component={search} />
           <Route component={NoMatch} />
           </Switch>
         </BrowserRouter>
