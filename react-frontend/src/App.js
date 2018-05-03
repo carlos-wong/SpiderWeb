@@ -13,6 +13,7 @@ import AddTestCase from './AddTestCase';
 import axios from 'axios';
 import config from './config';
 import Testaddcase from './testaddcase';
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
 var backend_axios_instance = axios.create({
     baseURL: config.serverurl,
