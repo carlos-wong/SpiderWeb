@@ -65,10 +65,10 @@ db.once('open', function() {
 async function check_token(ctx,token,username,tokenDate){
     let now = new Date();
     let allUserInfo = await UserInfo.find();
-    log.debug('all user info is:',allUserInfo,' vals is:',ctx.vals);
-    log.debug('find param is:',{token:ctx.vals.token,username:ctx.vals.username});
+    
+    
     let tokenAuthed = await UserInfo.findOne({token:ctx.vals.token,username:ctx.vals.username});
-    log.debug('token authed is:',tokenAuthed);
+    
     if (tokenAuthed) {
         let tokenDate = tokenAuthed.tokenValidDate;
         let offset = _.subtract(now - tokenDate);
@@ -121,7 +121,7 @@ router.get('/debug_query_test_case', async(ctx,next)=>{
         let tags = ctx.vals.tags.split(',');
         log.debug('tags is:',tags);
         let debugTestCasesAll = await TestCase.find();
-        log.debug('all test case is:',debugTestCasesAll);
+        
         let findTestCases = await TestCase.find({tags:{"$all" :['carlos','hi'] }});
         log.debug('find test cases is:',findTestCases);
         ctx.status = 200;
@@ -156,10 +156,10 @@ router.get('/addTestCase',async(ctx,next)=>{
         if(ctx.vals.tags){
             tags = ctx.vals.tags.split(',');
         }
-        log.debug('debug ctx before token authed vals:',ctx.vals);
+        
 
         let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
-        log.debug('token authed is:',tokenAuthed);
+        
         await next();
         let newTestCase = new TestCase({
             title:ctx.vals.title,
@@ -168,7 +168,7 @@ router.get('/addTestCase',async(ctx,next)=>{
             tags:tags
         });
         let saveRet = await newTestCase.save();
-        log.debug('debug save ret is:',saveRet);
+        
         ctx.status = 200;
     } catch (err) {
         log.debug('err is:',err);
