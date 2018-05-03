@@ -67,6 +67,14 @@ db.once('open', function() {
     console.log('opended mongodb');
 });
 
+async function check_testcase_exist(ctx,title){
+    let testcase = await TestCase({title:title});
+    if(testcase){
+        return true;
+    }
+    return false;
+}
+
 async function check_token(ctx,token,username,tokenDate){
     let now = new Date();
     let allUserInfo = await UserInfo.find();
@@ -169,6 +177,11 @@ router.post('/addTestCase',async(ctx,next)=>{
         }
         
         log.debug('dump try to save testcaes is:',ctx.vals);
+        let testcaseExist = check_testcase_exist(ctx,ctx.vals.title);
+        // ctx.throw(500,'title is exist');
+        ctx.status = 400;
+        ctx.body = "title is exist";
+        return;
         let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
         
         await next();

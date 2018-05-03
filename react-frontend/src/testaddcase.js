@@ -31,7 +31,7 @@ class Testaddcase extends Component {
                         log.debug(loginret);
                         this.props.route.history.push('/testaddcase');
                     } catch (err) {
-                        log.debug(err);
+                        log.debug('post err:',err.response.status);
                     } finally {
                     }
                 }}>
