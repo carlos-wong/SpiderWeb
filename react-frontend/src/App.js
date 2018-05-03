@@ -1,6 +1,6 @@
 import React, { Component,ReactDOM } from 'react';
 import {Row, Col,Layout,Modal,Button,Divider, List, Avatar,Input } from 'antd';
-import { BrowserRouter , Route, Link } from "react-router-dom";
+import { BrowserRouter , Route, Link,Switch,Redirect } from "react-router-dom";
 
 import logo from './logo.svg';
 import './App.css';
@@ -11,10 +11,21 @@ class App extends Component {
   render() {
     return (
         <BrowserRouter>
+          <Switch>
           <Route path="/Login" component={Login} />
+          <Route component={NoMatch} />
+          </Switch>
         </BrowserRouter>
     );
   }
 }
+
+const NoMatch = ({ location }) => (
+    <Redirect
+      to={{
+          pathname: "/login"
+      }}
+      />
+);
 
 export default App;
