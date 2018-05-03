@@ -6,19 +6,28 @@ import logo from './logo.svg';
 import './App.css';
 
 import Login from './Login';
+import AddTestCase from './AddTestCase';
 
 class App extends Component {
   render() {
     return (
         <BrowserRouter>
           <Switch>
-          <Route path="/Login" component={Login} />
+          <Route path="/login" component={Login} />
+          <Route path="/params/:id/hello/:newid" component={Params} />
+          <Route path="/addtestcase/:id/:name/:code" component={AddTestCase} />
           <Route component={NoMatch} />
           </Switch>
         </BrowserRouter>
     );
   }
 }
+
+const Params = ({ match }) => (
+    <div>
+      <h3>ID: {match.params.newid}</h3>
+    </div>
+);
 
 const NoMatch = ({ location }) => (
     <Redirect
