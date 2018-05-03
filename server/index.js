@@ -90,7 +90,7 @@ async function  userinfo_check_userexist(username){
 
 router.get('/userinfo',async (ctx,next)=>{
     try{
-        log.debug('cookie is:',ctx.cookie);
+        log.debug('uesr info cookie is:',ctx.cookie);
         ctx.validateBody('token')
             .isString()
             .trim();
