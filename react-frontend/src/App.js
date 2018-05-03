@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import { Modal,Button,Divider, List, Avatar,Input } from 'antd';
+import {Row, Col,Layout,Modal,Button,Divider, List, Avatar,Input } from 'antd';
+
 import logo from './logo.svg';
 import './App.css';
 
+const { Header, Footer, Sider, Content } = Layout;
 class App extends Component {
   render() {
     return (
@@ -11,7 +13,16 @@ class App extends Component {
           <h1 className="App-title">Welcome to SpiderWeb</h1>
         </header>
         <p className="Login">
-          hi carlos 
+          <div className="Login_Bar">
+            <a className="Login_Bar_title">Account:</a>
+            <Input className="Login_Bar_input" placeholder="Username" />
+          </div>
+        </p>
+        <p className="Login">
+          <div className="Login_Bar">
+            <a className="Login_Bar_title">Password:</a>
+            <Input className="Login_Bar_input" placeholder="Password" />
+          </div>
         </p>
       </div>
     );
