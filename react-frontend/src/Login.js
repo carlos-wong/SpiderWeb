@@ -9,14 +9,13 @@ import config from './config';
 
 log.setLevel('debug');
 
-var backend_axios_instance = axios.create({
-    baseURL: config.serverurl,
-    timeout: 10000,
-});
+let backend_axios_instance = null;
 
 class Login extends Component {
     constructor(props) {
         super(props);
+        log.debug('debug route:',this.props);
+        backend_axios_instance =  this.props.axios;
         this.state = {
             loading:false,
             username:"",
@@ -46,19 +45,27 @@ class Login extends Component {
                   <a className="Login_Bar_title">Password:</a>
                   <Input className="Login_Bar_input" placeholder="Password"
                          value={this.state.password}
-                         onChange={(event)=>{
+                         onChange={async (event)=>{
                              this.setState({
                                  password:event.target.value
                              });
-                             
                     }}/>
                 </div>
               </div>
-              <Button type="primary" loading={this.state.loading} onClick={()=>{
+              <Button type="primary" loading={this.state.loading} onClick={ async ()=>{
                     this.setState({loading:true});
-                    log.debug('debug state:',this.state);
+                    try {
+                        let loginret = await backend_axios_instance.get('/login?username='+this.state.username+'&password='+this.state.password);
+                        log.debug(loginret);
+                    } catch (err) {
+                        log.debug(err);
+                    } finally {
+                        this.setState({
+                            loading:false
+                        });
+                    }
                 }}>
-                Click me!
+                Login
               </Button>
             </div>
         );
