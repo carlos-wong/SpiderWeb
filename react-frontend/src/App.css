@@ -7,8 +7,13 @@
   height: 80px;
 }
 
+.Login {
+    padding: 100px;
+    height: 200px;
+}
+
 .App-header {
-  background-color: #222;
+  background-color: #93586e;
   height: 150px;
   padding: 20px;
   color: white;
