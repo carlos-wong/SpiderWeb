@@ -2,9 +2,10 @@
 const Koa = require('koa');
 var Router = require('koa-router');
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://mongo:27017/myproject');
 var log = require('loglevel');
+
 log.setLevel('debug');
+mongoose.connect('mongodb://mongo:27017/myproject');
 
 let _ = require('lodash');
 
