@@ -13,6 +13,7 @@
     "loglevel": "^1.6.1",
     "md5": "^2.2.1",
     "mongoose": "^5.0.17",
+    "mongoose-auto-increment": "^5.0.1",
     "nodemon": "^1.17.3"
   },
   "scripts": {
