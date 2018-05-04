@@ -30,7 +30,7 @@ class App extends Component {
             <Route path="/login/:id" axios="bar" component={(route) => (<Login route={route} axios={backend_axios_instance} />)} />
             <Route path="/params/:id/hello/:newid" component={Params} />
             <Route path="/userinfo" component={(route) => (<UserInfo route={route} axios={backend_axios_instance} />)} />
-            <Route path="/addtestcase/:id/:name/:code"  component={AddTestCase} />
+            <Route path="/addtestcase"  component={AddTestCase} />
             <Route component={NoMatch} />
           </Switch>
         </BrowserRouter>
