@@ -52,11 +52,21 @@ var UserInfo = mongoose.model('UserInfo', {
     tokenValidDate:{type:Date}
 });
 
-var TestCase = mongoose.model('TestCase',{
+var TestCaseSchema = new Schema({
     title:{type:String,request: true,index:true,unique:true,dropDups:true,sparse:true},
     correct:{ type: String,required: true},
     createdDate:{type:Date},
+    testcaseid:{type:Number,requiree:true},
     tags:[]
+});
+
+var TestCase = connection.model('TestCase',TestCaseSchema);
+
+TestCaseSchema.plugin(autoIncrement.plugin, {
+    model: 'TestCase',
+    field: 'testcaseid',
+    startAt: 1,
+    incrementBy: 1
 });
 
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -218,6 +228,20 @@ router.post('/newtestgroup',async (ctx,next)=>{
 router.post('/debugpost',async(ctx,next)=>{
     log.debug('post body is:',ctx.request.body);
     await next();
+    ctx.status = 200;
+});
+
+router.get('/testcases',async (ctx,next)=>{
+    ctx.validateBody('username')
+        .isString()
+        .trim();
+    ctx.validateBody('token')
+        .isString()
+        .trim();
+    let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
+    await next();
+    let testcases = await TestCase.find();
+    ctx.body = testcases;
     ctx.status = 200;
 });
 

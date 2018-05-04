@@ -26,6 +26,9 @@ grouptitle=hicarlos
 GET http://localhost:3038/gettestgroups
 
 #
+GET http://localhost:3038/testcases
+
+#
 GET http://localhost:3038/userinfo?token=b036f51ef23c0dc8fd579e78cde74963&username=12345123
 
 #
@@ -35,7 +38,9 @@ GET http://localhost:3038/debug_inser_test_case
 GET http://localhost:3038/debug_query_test_case?tags=123,234
 
 #
-GET http://localhost:3038/addTestCase?title=112sdf3a&correct=correct123
+POST http://localhost:3038/addTestCase
+Content-Type: application/x-www-form-urlencoded
+correct=correct123&title=112sdf3asdfas
 
 #
 GET http://localhost:3038/register?name=123
