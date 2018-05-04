@@ -20,6 +20,9 @@ Content-Type: application/x-www-form-urlencoded
 debug=1
 
 #
+GET http://localhost:3038/gettestgroupcases?groupid=1
+
+#
 POST http://localhost:3038/newtestgroup
 Content-Type: application/x-www-form-urlencoded
 grouptitle=hicarlos
