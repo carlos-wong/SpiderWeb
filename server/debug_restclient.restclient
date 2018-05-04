@@ -23,6 +23,9 @@ Content-Type: application/x-www-form-urlencoded
 grouptitle=hicarlos
 
 #
+GET http://localhost:3038/gettestgroups
+
+#
 GET http://localhost:3038/userinfo?token=b036f51ef23c0dc8fd579e78cde74963&username=12345123
 
 #

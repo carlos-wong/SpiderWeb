@@ -179,6 +179,21 @@ router.get('/debug_query_test_case', async(ctx,next)=>{
     }
 });
 
+router.get('/gettestgroups',async (ctx,next)=>{
+    ctx.validateBody('username')
+        .isString()
+        .trim();
+    ctx.validateBody('token')
+        .isString()
+        .trim();
+    let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
+
+    await next();
+    var debugTestgroupAll = await TestGroup.find();
+    ctx.body = debugTestgroupAll;
+    ctx.status = 200;
+});
+
 router.post('/newtestgroup',async (ctx,next)=>{
     ctx.validateBody('username')
         .isString()
@@ -197,10 +212,6 @@ router.post('/newtestgroup',async (ctx,next)=>{
     testgroup.username = ctx.vals.username;
     testgroup.state = 'wip';
     var ret = await testgroup.save();
-    log.debug('save test group is:',testgroup);
-    var debugTestgroupAll = await TestGroup.find();
-    log.debug('debug test group all is:',debugTestgroupAll);
-
     ctx.status = 200;
 });
 
@@ -238,17 +249,13 @@ router.post('/addTestCase',async(ctx,next)=>{
         if(ctx.vals.tags){
             tags = ctx.vals.tags.split(',');
         }
-        log.debug('dump try to save testcaes is:',ctx.vals);
         let testcaseExist = await  check_testcase_exist(ctx,ctx.vals.title);
-        // ctx.throw(500,'title is exist');
-        log.debug('testcase exist is:',testcaseExist);
         if(testcaseExist){
             ctx.status = 400;
             ctx.body = "title is exist";
             return;
         }
         let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
-        
         await next();
         let newTestCase = new TestCase({
             title:ctx.vals.title,
