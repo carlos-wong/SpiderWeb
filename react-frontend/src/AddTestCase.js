@@ -1,10 +1,45 @@
+// import { Menu, Dropdown, Icon, SubMenu } from 'antd';
+var antd = require('antd');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var SimpleMDEReact = require('react-simplemde-editor');
 var Editor = require('./markdown/Editor');
 var createReactClass = require('create-react-class');
 // import React, { Component, ReactDOM } from 'react';
+
+
+const Cascader = antd.Cascader
+
 let counter = 1;
+
+const options = [{
+    value: 'zhejiang',
+    label: 'Zhejiang',
+    children: [{
+      value: 'hangzhou',
+      label: 'Hangzhou',
+      children: [{
+        value: 'xihu',
+        label: 'West Lake',
+      }],
+    }],
+  }, {
+    value: 'jiangsu',
+    label: 'Jiangsu',
+    children: [{
+      value: 'nanjing',
+      label: 'Nanjing',
+      children: [{
+        value: 'zhonghuamen',
+        label: 'Zhong Hua Men',
+      }],
+    }],
+  }];
+
+function onChange(value) {
+  console.log(value);
+}
+
 
 module.exports = createReactClass({
 
@@ -59,11 +94,15 @@ module.exports = createReactClass({
         <button style={{display: "inline-block", margin: "10px 0"}} onClick={this.handleTextChange}>
           Confirm
         </button>
+        
+        <Cascader options={options} onChange={onChange} placeholder="Please select" />
+
         <Editor
           label="Markdown Editor"
           value={this.state.textValue1}
           handleEditorChange={this.handleChange1}
         />
+
         <hr />
       </div>
     )

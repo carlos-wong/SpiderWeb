@@ -69,6 +69,11 @@
   padding: 10px 20px;
 }
 
+.md-editor-style {
+  width: 50px
+} 
+
+
 .editor-pane {
   position: fixed;
   top: 57px;
@@ -517,7 +522,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 .CodeMirror-linewidget {
   position: relative;
   z-index: 2;
-  overflow: auto
+  overflow: auto;
 }
 
 .CodeMirror-code {
@@ -530,7 +535,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 .CodeMirror-scroll,
 .CodeMirror-sizer {
   -moz-box-sizing: content-box;
-  box-sizing: content-box
+  box-sizing: content-box;
 }
 
 .CodeMirror-measure {
