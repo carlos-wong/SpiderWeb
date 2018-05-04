@@ -26,6 +26,11 @@ grouptitle=hicarlos
 GET http://localhost:3038/gettestgroups
 
 #
+POST http://localhost:3038/battestcaseresult
+Content-Type: application/x-www-form-urlencoded
+testcases=1,2,3,4&groupid=1
+
+#
 GET http://localhost:3038/testcases
 
 #

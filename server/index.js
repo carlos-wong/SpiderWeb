@@ -83,11 +83,11 @@ app.use(cors({
 }));
 
 app.use(async (ctx, next) => {
-    log.debug('method is:',ctx.method,' index:',["GET", "HEAD", "DELETE"].indexOf(ctx.method.toUpperCase()));
+    
     if (["GET", "HEAD", "DELETE"].indexOf(ctx.method.toUpperCase()) >= 0) {
         ctx.request.body = ctx.request.query;
     }
-    log.debug('post body is:',ctx.request.body);
+    
     let context = ctx;
     const cookieHeader = context.headers.cookie;
     if (cookieHeader) {
@@ -113,7 +113,7 @@ app.use(router.routes())
 
 async function check_testcase_exist(ctx,title){
     let testcase = await TestCase.find({title:title});
-    log.debug('query test case is:',testcase);
+    
     if(testcase.length > 0){
         return true;
     }
@@ -152,7 +152,7 @@ async function  userinfo_check_userexist(username){
 
 router.get('/userinfo',async (ctx,next)=>{
     try{
-        log.debug('uesr info cookie is:',ctx.cookie);
+        
         ctx.validateBody('token')
             .isString()
             .trim();
@@ -160,13 +160,13 @@ router.get('/userinfo',async (ctx,next)=>{
             .isString()
             .trim();
         let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
-        log.debug('debug token authed is:',tokenAuthed);
+        
         await next();
         ctx.status = 200;
     }
     catch(e){
         ctx.throw(e);
-        // log.debug(e);
+        // 
     }
     // ctx.status = 200;
 });
@@ -177,11 +177,11 @@ router.get('/debug_query_test_case', async(ctx,next)=>{
             .isString()
             .trim();
         let tags = ctx.vals.tags.split(',');
-        log.debug('tags is:',tags);
+        
         let debugTestCasesAll = await TestCase.find();
         
         let findTestCases = await TestCase.find({tags:{"$all" :['carlos','hi'] }});
-        log.debug('find test cases is:',findTestCases);
+        
         ctx.status = 200;
     }
     catch(e){
@@ -201,6 +201,59 @@ router.get('/gettestgroups',async (ctx,next)=>{
     await next();
     var debugTestgroupAll = await TestGroup.find();
     ctx.body = debugTestgroupAll;
+    ctx.status = 200;
+});
+
+router.post('/battestcaseresult',async (ctx,next)=>{
+    ctx.validateBody('username')
+        .isString()
+        .trim();
+    ctx.validateBody('token')
+        .isString()
+        .trim();
+    ctx.validateBody('testcases')
+        .isString()
+        .trim();
+    ctx.validateBody('groupid')
+        .isString()
+        .trim();
+
+    let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
+    let testgroup = await TestGroup.findOne({groupid:ctx.vals.groupid});
+    await next();
+    if(!testgroup){
+        ctx.throw(404,'error groupid');
+    }
+    
+    testgroup.state = 'wip';
+    let ret = await testgroup.save();
+    
+    let cases = ctx.vals.testcases.split(',');
+    let casesLen = cases.length;
+    let result = [];
+    
+    _.map(cases,async (value,index)=>{
+        
+        let testcase = await TestCase.findOne({testcaseid:value});
+        
+        result[result.length] = testcase || "";
+        if(result.length === casesLen){
+            
+            testgroup.state = 'ready';
+            let ret = await testgroup.save();
+            
+            
+        }
+        if(testcase){
+            let testcaseresult = new TestCaseResult();
+            testcaseresult.groupid = ctx.vals.groupid;
+            testcaseresult.title = testcase.title;
+            testcaseresult.result = '';
+            testcaseresult.resultdate = new Date();
+            let ret = await testcaseresult.save();
+            
+        }
+    });
     ctx.status = 200;
 });
 
