@@ -4,9 +4,14 @@ var Router = require('koa-router');
 var mongoose = require('mongoose');
 var log = require('loglevel');
 var cors = require('koa-cors');
+var autoIncrement = require('mongoose-auto-increment');
+var Schema = mongoose.Schema;
 
 log.setLevel('debug');
 mongoose.connect('mongodb://mongo:27017/myproject');
+var connection = mongoose.createConnection("mongodb://mongo:27017/myproject");
+
+autoIncrement.initialize(connection);
 
 let _ = require('lodash');
 const bouncer = require('koa-bouncer');
@@ -16,6 +21,48 @@ const koaBody = require('koa-body');
 var md5 = require('md5');
 
 var db = mongoose.connection;
+
+var TestCaseResult = mongoose.model('TestCaseResult',{
+    groupid:{type:String,require:true},
+    title:{type:String,require:true},
+    result:{type:String,require:true},
+    resultdate:{type:Date}
+});
+
+var TestGroupSchema = new Schema({
+    groupid:{ type: String,required: true, index: true,unique: true, dropDups: true, sparse: true },
+    grouptitle:{type:String,require:true},
+    username:{type:String,require:true},
+    state:{type:String,require:true}
+});
+
+var TestGroup = connection.model('TestGroup', TestGroupSchema);
+
+TestGroupSchema.plugin(autoIncrement.plugin, {
+    model: 'TestGroup',
+    field: 'groupid',
+    startAt: 1,
+    incrementBy: 1
+});
+
+var UserInfo = mongoose.model('UserInfo', {
+    username:{ type: String,required: true, index: true,unique: true, dropDups: true, sparse: true },
+    password:{ type: String,required: true},
+    token:{ type: String,},
+    tokenValidDate:{type:Date}
+});
+
+var TestCase = mongoose.model('TestCase',{
+    title:{type:String,request: true,index:true,unique:true,dropDups:true,sparse:true},
+    correct:{ type: String,required: true},
+    createdDate:{type:Date},
+    tags:[]
+});
+
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+    console.log('opended mongodb');
+});
 
 const app = new Koa();
 var router = new Router();
@@ -41,6 +88,12 @@ app.use(async (ctx, next) => {
             if (crumbs.length > 1) context.cookie[crumbs[0].trim()] = crumbs[1].trim();
         });
     }
+    if (ctx.cookie && ctx.cookie.token) {
+        ctx.request.body.token = ctx.cookie.token;
+    }
+    if (ctx.cookie && ctx.cookie.username) {
+        ctx.request.body.username = ctx.cookie.username;
+    }
     await next();
 });
 
@@ -48,28 +101,10 @@ app.use(bouncer.middleware());
 app.use(router.routes())
     .use(router.allowedMethods());
 
-var UserInfo = mongoose.model('UserInfo', {
-    username:{ type: String,required: true, index: true,unique: true, dropDups: true, sparse: true },
-    password:{ type: String,required: true},
-    token:{ type: String,},
-    tokenValidDate:{type:Date}
-});
-
-var TestCase = mongoose.model('TestCase',{
-    title:{type:String,request: true,index:true,unique:true,dropDups:true,sparse:true},
-    correct:{ type: String,required: true},
-    createdDate:{type:Date},
-    tags:[]
-});
-
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-    console.log('opended mongodb');
-});
-
 async function check_testcase_exist(ctx,title){
-    let testcase = await TestCase({title:title});
-    if(testcase){
+    let testcase = await TestCase.find({title:title});
+    log.debug('query test case is:',testcase);
+    if(testcase.length > 0){
         return true;
     }
     return false;
@@ -144,6 +179,31 @@ router.get('/debug_query_test_case', async(ctx,next)=>{
     }
 });
 
+router.post('/newtestgroup',async (ctx,next)=>{
+    ctx.validateBody('username')
+        .isString()
+        .trim();
+    ctx.validateBody('token')
+        .isString()
+        .trim();
+    ctx.validateBody('grouptitle')
+        .isString()
+        .trim();
+
+    let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
+    await next();
+    var testgroup = new TestGroup();
+    testgroup.grouptitle = ctx.vals.grouptitle;
+    testgroup.username = ctx.vals.username;
+    testgroup.state = 'wip';
+    var ret = await testgroup.save();
+    log.debug('save test group is:',testgroup);
+    var debugTestgroupAll = await TestGroup.find();
+    log.debug('debug test group all is:',debugTestgroupAll);
+
+    ctx.status = 200;
+});
+
 router.post('/debugpost',async(ctx,next)=>{
     log.debug('post body is:',ctx.request.body);
     await next();
@@ -155,9 +215,12 @@ router.post('/addTestCase',async(ctx,next)=>{
         log.debug('add test case cookie is:',ctx.cookie);
         //     .isString()
         //     .trim();
-        // ctx.validateBody('username')
-        //     .isString()
-        //     .trim();
+        ctx.validateBody('username')
+            .isString()
+            .trim();
+        ctx.validateBody('token')
+            .isString()
+            .trim();
         ctx.validateBody('title')
             .isString()
             .trim();
@@ -168,20 +231,22 @@ router.post('/addTestCase',async(ctx,next)=>{
             .optional()
             .isString()
             .trim();
-        ctx.vals.token = ctx.cookie.token;
-        ctx.vals.username = ctx.cookie.username;
+        // ctx.vals.token = ctx.cookie.token;
+        // ctx.vals.username = ctx.cookie.username;
         // ctx.validateBody('token')
         let tags = [];
         if(ctx.vals.tags){
             tags = ctx.vals.tags.split(',');
         }
-        
         log.debug('dump try to save testcaes is:',ctx.vals);
-        let testcaseExist = check_testcase_exist(ctx,ctx.vals.title);
+        let testcaseExist = await  check_testcase_exist(ctx,ctx.vals.title);
         // ctx.throw(500,'title is exist');
-        ctx.status = 400;
-        ctx.body = "title is exist";
-        return;
+        log.debug('testcase exist is:',testcaseExist);
+        if(testcaseExist){
+            ctx.status = 400;
+            ctx.body = "title is exist";
+            return;
+        }
         let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
         
         await next();
