@@ -1,3 +1,5 @@
+# 接口测试和描述文档
+# testcase 为单独一个测试用例 testgroup 为一轮测试，将一些测试用例组合到一起，进行一轮测试
 #
 
 GET http://localhost:3038
