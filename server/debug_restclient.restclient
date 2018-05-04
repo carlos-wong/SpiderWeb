@@ -36,7 +36,7 @@ Content-Type: application/x-www-form-urlencoded
 testcases=1,2,3,4&groupid=1
 
 #
-GET http://localhost:3038/testcases
+GET http://localhost:3038/gettestcasesbytags?tags=carlos
 
 #
 GET http://localhost:3038/userinfo?token=b036f51ef23c0dc8fd579e78cde74963&username=12345123

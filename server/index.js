@@ -189,6 +189,24 @@ router.get('/debug_query_test_case', async(ctx,next)=>{
     }
 });
 
+router.get('/gettestcasesbytags',async (ctx,next)=>{
+    ctx.validateBody('username')
+        .isString()
+        .trim();
+    ctx.validateBody('token')
+        .isString()
+        .trim();
+    ctx.validateBody('tags')
+        .isString()
+        .trim();
+    let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
+    await next();
+    let tags = ctx.vals.tags.split(',');
+    let testcases = await TestCase.find({tags:{"$all" : tags }});
+    ctx.body = testcases;
+    ctx.status = 200;
+});
+
 router.get('/gettestgroupcases',async (ctx,next)=>{
     ctx.validateBody('username')
         .isString()
