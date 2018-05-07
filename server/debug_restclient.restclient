@@ -13,12 +13,17 @@ GET http://localhost:3038/register?username=12&password=12
 
 #
 GET http://localhost:3038/login?username=12345123&password=123123
+#
+GET http://localhost:3038/testcases
 
 #
-
 PUT http://localhost:3038/testput
 Content-Type: application/x-www-form-urlencoded
 debug=1&hi=测试中 文
+#
+PUT http://localhost:3038/testcase
+Content-Type: application/x-www-form-urlencoded
+title=hi123&tags=1,2,3
 #
 POST http://localhost:3038/debugpost
 Content-Type: application/x-www-form-urlencoded

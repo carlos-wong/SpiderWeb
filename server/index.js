@@ -119,6 +119,12 @@ async function check_testcase_exist(ctx,title){
     return false;
 }
 
+async function query_testcase(ctx,title){
+    
+    let testcase = await TestCase.findOne({title:title});
+    return testcase;
+}
+
 async function check_token(ctx,token,username,tokenDate){
     let now = new Date();
     let allUserInfo = await UserInfo.find();
@@ -339,10 +345,56 @@ router.get('/testcases',async (ctx,next)=>{
     ctx.body = testcases;
     ctx.status = 200;
 });
-
 router.put('/testcase',async(ctx,next)=>{
     try {
-        log.debug('add test case cookie is:',ctx.cookie);
+        
+        ctx.validateBody('username')
+            .isString()
+            .trim();
+        ctx.validateBody('token')
+            .isString()
+            .trim();
+        ctx.validateBody('title')
+            .isString()
+            .trim();
+        ctx.validateBody('correct')
+            .optional()
+            .isString()
+            .trim();
+        ctx.validateBody('tags')
+            .optional()
+            .isString()
+            .trim();
+
+        let testcase = await  query_testcase(ctx,ctx.vals.title);
+        
+        if(!testcase){
+            ctx.status = 400;
+            ctx.body = "title is not exist";
+            return;
+        }
+        let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
+        await next();
+
+        if (ctx.vals.tags) {
+            testcase.tags = ctx.vals.tags.split(',');
+        }
+        if(ctx.vals.correct){
+            testcase.correct = ctx.vals.correct;
+        }
+        let saveRet = await testcase.save();
+        
+        ctx.status = 200;
+    } catch (err) {
+        log.debug('err is:',err);
+        // ctx.throw(err);
+        ctx.status = 500;
+    } finally {
+    }
+});
+router.post('/testcase',async(ctx,next)=>{
+    try {
+        
         //     .isString()
         //     .trim();
         ctx.validateBody('username')
@@ -395,7 +447,7 @@ router.put('/testcase',async(ctx,next)=>{
 
 router.post('/testcase',async(ctx,next)=>{
     try {
-        log.debug('add test case cookie is:',ctx.cookie);
+        
         //     .isString()
         //     .trim();
         ctx.validateBody('username')
@@ -448,7 +500,7 @@ router.post('/testcase',async(ctx,next)=>{
 
 router.get('/login', async (ctx,next)=>{
     try{
-        log.debug('login cookie is:',ctx.cookie);
+        
         ctx.validateBody('username')
             .isString()
             .trim();
@@ -465,7 +517,7 @@ router.get('/login', async (ctx,next)=>{
             loginRet.token = token;
             loginRet.tokenValidDate = time;
             let saveRet = await loginRet.save();
-            log.debug('save login Ret is:',saveRet);
+            
             ctx.body = {token:token};
             ctx.cookies.set('token', token);
             ctx.cookies.set('username',ctx.vals.username);
