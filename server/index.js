@@ -87,7 +87,6 @@ app.use(async (ctx, next) => {
     if (["GET", "HEAD", "DELETE"].indexOf(ctx.method.toUpperCase()) >= 0) {
         ctx.request.body = ctx.request.query;
     }
-    
     let context = ctx;
     const cookieHeader = context.headers.cookie;
     if (cookieHeader) {
@@ -149,6 +148,13 @@ async function  userinfo_check_userexist(username){
         return true;
     }
 }
+
+router.put('/testput',async (ctx,next)=>{
+    log.debug('put test put is:',ctx.request,' body:',ctx.request.body);
+    await next();
+    ctx.body = ctx.request.body;
+    ctx.status = 200;
+});
 
 router.get('/userinfo',async (ctx,next)=>{
     try{
@@ -334,7 +340,7 @@ router.get('/testcases',async (ctx,next)=>{
     ctx.status = 200;
 });
 
-router.post('/addTestCase',async(ctx,next)=>{
+router.put('/testcase',async(ctx,next)=>{
     try {
         log.debug('add test case cookie is:',ctx.cookie);
         //     .isString()
@@ -370,13 +376,13 @@ router.post('/addTestCase',async(ctx,next)=>{
         }
         let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
         await next();
-        let newTestCase = new TestCase({
+        let testcaseToSave = new TestCase({
             title:ctx.vals.title,
             correct:ctx.vals.correct,
             createdDate: new Date(),
             tags:tags
         });
-        let saveRet = await newTestCase.save();
+        let saveRet = await testcaseToSave.save();
         
         ctx.status = 200;
     } catch (err) {
@@ -387,27 +393,56 @@ router.post('/addTestCase',async(ctx,next)=>{
     }
 });
 
-router.get('/debug_inser_test_case', async(ctx,next)=>{
-    try{
-        let newTestCase = new TestCase({
-            title:'hi123',
-            correct:'hello',
-            createdDate: new Date(),
-            tags:["carlos",'hisadfasf']
-        });
-        let saveRet = await newTestCase.save();
-        log.debug('debug save ret is:',saveRet);
+router.post('/testcase',async(ctx,next)=>{
+    try {
+        log.debug('add test case cookie is:',ctx.cookie);
+        //     .isString()
+        //     .trim();
+        ctx.validateBody('username')
+            .isString()
+            .trim();
+        ctx.validateBody('token')
+            .isString()
+            .trim();
+        ctx.validateBody('title')
+            .isString()
+            .trim();
+        ctx.validateBody('correct')
+            .isString()
+            .trim();
+        ctx.validateBody('tags')
+            .optional()
+            .isString()
+            .trim();
+        // ctx.vals.token = ctx.cookie.token;
+        // ctx.vals.username = ctx.cookie.username;
+        // ctx.validateBody('token')
+        let tags = [];
+        if(ctx.vals.tags){
+            tags = ctx.vals.tags.split(',');
+        }
+        let testcaseExist = await  check_testcase_exist(ctx,ctx.vals.title);
+        if(testcaseExist){
+            ctx.status = 400;
+            ctx.body = "title is exist";
+            return;
+        }
+        let tokenAuthed = await check_token(ctx,ctx.vals.token,ctx.vals.uesrname);
         await next();
+        let testcaseToSave = new TestCase({
+            title:ctx.vals.title,
+            correct:ctx.vals.correct,
+            createdDate: new Date(),
+            tags:tags
+        });
+        let saveRet = await testcaseToSave.save();
+        
         ctx.status = 200;
-    }
-    catch(e){
-        // log.debug('debug insert test case catch e:',e);
-        try{
-            ctx.throw(e);
-        }
-        catch(e){
-            ctx.throw(400, 'debug insert data error');
-        }
+    } catch (err) {
+        log.debug('err is:',err);
+        // ctx.throw(err);
+        ctx.status = 500;
+    } finally {
     }
 });
 
